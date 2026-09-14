@@ -174,19 +174,19 @@ pick up whatever hit that.
 ## Object names with spaces (or other unusual characters) no longer crash the run
 
 Confirmed live 2026-09-13: an object whose name contains a space (a
-perfectly normal, legitimate name — e.g. an Alias called `ashburn cppm
-guest appliance`) used to crash the entire run with
+perfectly normal, legitimate name — e.g. an Alias called `server cppm
+appliance`) used to crash the entire run with
 `http.client.InvalidURL: URL can't contain control characters`. This
 happened specifically on the follow-up PUT used by the "refresh existing
 object" feature and by phase F's role-policy reattach, both of which build
 a URL by appending the object's raw name after its collection path
-(`.../aliases/ashburn cppm guest appliance`) — an unescaped space in a URL
+(`.../aliases/server cppm appliance`) — an unescaped space in a URL
 path is invalid and the underlying `http.client` library raises instead of
 just sending a bad request.
 
 Fixed by percent-encoding every object name used this way before it goes
-into a URL, so `ashburn cppm guest appliance` now correctly becomes
-`ashburn%20cppm%20guest%20appliance` in the actual HTTP request line. As a
+into a URL, so `server cppm appliance` now correctly becomes
+`server%20cppm%20appliance` in the actual HTTP request line. As a
 second line of defense, `api_call()` also now catches any exception type at
 all (not just network timeouts) and turns it into a normal `ERR` for that
 one object instead of ever letting the whole run die again — so even an
@@ -276,8 +276,8 @@ up front:
 **GUI:** paste JSON into the "Secret values (optional)" box under Step 2,
 e.g.:
 ```json
-{"alias:NAM_RADIUS_KEY": "the real shared secret",
- "auth-server:US_RADIUS_CHI_VIP1": "the real shared secret"}
+{"alias:RADIUS_KEY": "the real shared secret",
+ "auth-server:RADIUS_Server_1": "the real shared secret"}
 ```
 It's held in memory and a private temp file for the length of that one
 run only, then deleted immediately after — never written to the export
@@ -290,8 +290,8 @@ python3 new_central_migrate.py --from-export --export-dir ./export --apply \
 ```
 
 Keys are `"<list_key>:<name>"` — the dry-run output and the reference-check
-report both print the exact names to use (e.g. `NAM_RADIUS_KEY` under
-`[Phase A] Aliases:`, `US_RADIUS_CHI_VIP1` under `Authentication servers`).
+report both print the exact names to use (e.g. `RADIUS_KEY` under
+`[Phase A] Aliases:`, `RADIUS_Server_1` under `Authentication servers`).
 If an object has more than one secret field, use a nested object instead
 of a plain string: `{"alias:X": {"default-value.some.path": "real value"}}`
 — the dry-run output shows you the exact dotted path.
